@@ -1,0 +1,297 @@
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FriendSim: Messages</title>
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff;
+    color: #333;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  header {
+    background-color: #4a90e2;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+  }
+  h1, h2 {
+    margin: 0;
+  }
+  h1 {
+    font-size: 2.5em;
+  }
+  nav {
+    background-color: #3a7bc8;
+    padding: 10px 0;
+  }
+  nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+  }
+  nav ul li {
+    margin: 0 15px;
+  }
+  nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+  }
+  nav ul li a:hover {
+    color: #f0f8ff;
+  }
+  .messages-container {
+    display: flex;
+    height: calc(100vh - 200px);
+    background-color: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  }
+  .conversation-list {
+    width: 30%;
+    border-right: 1px solid #e0e0e0;
+    overflow-y: auto;
+  }
+  .conversation-item {
+    padding: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  .conversation-item:hover {
+    background-color: #f5f5f5;
+  }
+  .conversation-item.active {
+    background-color: #e6f2ff;
+  }
+  .conversation-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4a90e2;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  .conversation-info {
+    display: inline-block;
+    vertical-align: top;
+  }
+  .conversation-name {
+    font-weight: bold;
+  }
+  .conversation-preview {
+    font-size: 0.9em;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  .chat-area {
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+  }
+  .chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  .message {
+    max-width: 70%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 20px;
+    clear: both;
+  }
+  .message.sent {
+    background-color: #4a90e2;
+    color: white;
+    float: right;
+  }
+  .message.received {
+    background-color: #e0e0e0;
+    float: left;
+  }
+  .chat-input {
+    display: flex;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+  }
+  .chat-input input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+  }
+  .chat-input button {
+    padding: 10px 20px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>FriendSim</h1>
+    </div>
+  </header>
+  
+  <nav>
+    <ul>
+      <li><a href="Home.html"
+      <li><a href="friends.html"
+      <li><a href="messages.html"
+      <li><a href="profile.html"
+    </ul>
+  </nav>
+
+  <main class="container">
+    <h2>Messages</h2>
+    <div class="messages-container">
+      <div class="conversation-list" id="conversationList">
+        <!-- Conversation items will be dynamically added here -->
+      </div>
+      <div class="chat-area">
+        <div class="chat-messages" id="chatMessages">
+          <!-- Chat messages will be dynamically added here -->
+        </div>
+        <div class="chat-input">
+          <input type="text" id="messageInput" placeholder="Type a message...">
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Simulated conversation data
+    const conversations = [
+      { id: 1, name: "jhermae", avatar: "c:\Users\PC 13\Downloads\Sunflower_sky_backdrop.jpg", lastMessage: "Hey, how are you?" },
+      { id: 2, name: "mika", avatar: "c:\Users\PC 13\Downloads\Sunflower_sky_backdrop.jpg", lastMessage: "Did you see the game last night?" },
+      { id: 3, name: "arlene", avatar: "c:\Users\PC 13\Downloads\Sunflower_sky_backdrop.jpg", lastMessage: "Let's grab coffee sometime" },
+      { id: 4, name: "trixy", avatar: "c:\Users\PC 13\Downloads\Sunflower_sky_backdrop.jpg", lastMessage: "Thanks for the help!" },
+      { id: 5, name: "ella jane", avatar: "c:\Users\PC 13\Downloads\Sunflower_sky_backdrop.jpg", lastMessage: "Mission accomplished" },
+    ];
+
+    let currentConversation = null;
+
+    // Function to create a conversation item
+    function createConversationItem(conversation) {
+      const item = document.createElement('div');
+      item.className = 'conversation-item';
+      item.onclick = () => loadConversation(conversation.id);
+      item.innerHTML = `
+        <div class="conversation-avatar">${conversation.avatar}</div>
+        <div class="conversation-info">
+          <div class="conversation-name">${conversation.name}</div>
+          <div class="conversation-preview">${conversation.lastMessage}</div>
+        </div>
+      `;
+      return item;
+    }
+
+    // Function to render conversations
+    function renderConversations() {
+      const container = document.getElementById('conversationList');
+      container.innerHTML = '';
+      conversations.forEach(conversation => {
+        container.appendChild(createConversationItem(conversation));
+      });
+    }
+
+    // Function to load a conversation
+    function loadConversation(conversationId) {
+      currentConversation = conversations.find(c => c.id === conversationId);
+      document.querySelectorAll('.conversation-item').forEach(item => item.classList.remove('active'));
+      document.querySelector(`.conversation-item:nth-child(${conversationId})`).classList.add('active');
+      
+      // Clear previous messages
+      const chatMessages = document.getElementById('chatMessages');
+      chatMessages.innerHTML = '';
+
+      // Simulated message history
+      const messageHistory = [
+        { text: "Hey there!", sent: false },
+        { text: "Hi! How are you?", sent: true },
+        { text: "I'm doing great, thanks for asking!", sent: false },
+        { text: "That's wonderful to hear!", sent: true },
+      ];
+
+      // Render message history
+      messageHistory.forEach(message => {
+        const messageElement = document.createElement('div');
+        messageElement.className = `message ${message.sent ? 'sent' : 'received'}`;
+        messageElement.textContent = message.text;
+        chatMessages.appendChild(messageElement);
+      });
+
+      // Scroll to bottom of chat
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Function to send a message
+    function sendMessage() {
+      if (!currentConversation) {
+        alert("Please select a conversation first.");
+        return;
+      }
+
+      const input = document.getElementById('messageInput');
+      const message = input.value.trim();
+      if (message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message sent';
+        messageElement.textContent = message;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+        input.value = '';
+
+        // Update conversation preview
+        currentConversation.lastMessage = message;
+        renderConversations();
+
+        // Simulate received message
+        setTimeout(() => {
+          const receivedMessage = document.createElement('div');
+          receivedMessage.className = 'message received';
+          receivedMessage.textContent = "Thanks for your message! I'll get back to you soon.";
+          chatMessages.appendChild(receivedMessage);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 1000);
+      }
+    }
+
+    // Initialize the page
+    renderConversations();
+
+    // Add event listener for Enter key in message input
+    document.getElementById('messageInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+  </script>
+</body></html>
